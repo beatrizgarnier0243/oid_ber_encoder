@@ -17,3 +17,10 @@ const oid = decode(bytes);
 This exists because pulling in a full ASN.1 library to read or write a handful of OIDs is disproportionate. The trade-off: this library handles only OIDs and only their content bytes. It does not emit or parse tags, lengths, or any other ASN.1 type.
 
 The awkward edge: the first two arcs are packed into one byte as `40 * first + second`. The first arc must be 0, 1, or 2, and when it is 0 or 1 the second arc must be less than 40. When it is 2, the second arc is unbounded. `encode` validates this and throws; `decode` reverses the packing by range-checking the first subidentifier.
+
+## Performance
+
+The window keeps a bounded buffer, so `push` is constant time and memory does not
+grow with the length of the stream. `peak` and `trough` are linear in the window
+size, which is the trade that keeps `push` cheap.
+
